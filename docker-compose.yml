@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+
+  db:
+    image: mysql:5.7
+    ports:
+      - 3306:3306
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: supermarket_db
+    #networks:
+    #  - app-tier
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ".:/code"
+    ports:
+      - 4000:4000
+    environment:
+      DB_HOST: 172.18.0.2
+      DB_PORT: 3306
+      DB_USER: root
+      DB_PASSWORD: pass
+      DB_NAME: supermarket_db
+      URL: 0.0.0.0:4000
+    depends_on:
+      - db
+    links:
+      - db
+    #networks:
+    #  - app-tier
+    #command:
+    #  tail -f /dev/null
+
+#networks:
+#  app-tier:
+#    driver: bridge
